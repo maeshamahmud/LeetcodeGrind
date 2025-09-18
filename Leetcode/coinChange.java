@@ -1,3 +1,4 @@
+package Leetcode;
 class Solution {
     public int coinChange(int[] coins, int amount) {
         int MAX_INTEGER = amount+1;
