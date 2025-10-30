@@ -1,0 +1,105 @@
+import java.util.*;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        
+        // read the dimensions of map
+        int n = sc.nextInt();
+        int m = sc.nextInt();
+        sc.nextLine(); // consume the newline after numbers
+        
+        // store the grid
+        char[][] grid = new char[n][m];
+        int startR = -1, startC = -1; // starting position
+        int endR = -1, endC = -1; // ending position
+        
+        // read the grid and find A and B positions
+        for (int i = 0; i < n; i++) {
+            String line = sc.nextLine();
+            for (int j = 0; j < m; j++) {
+                grid[i][j] = line.charAt(j);
+                if (grid[i][j] == 'A') {
+                    startR = i;
+                    startC = j;
+                }
+                if (grid[i][j] == 'B') {
+                    endR = i;
+                    endC = j;
+                }
+            }
+        }
+        
+        // now we need to do BFS because we want shortest path
+        // tricky part is that: when we move, we slide until we hit a wall
+        
+        Queue<int[]> queue = new LinkedList<>();
+        boolean[][] visited = new boolean[n][m];
+        
+        queue.add(new int[]{startR, startC, 0}); // row, col, distance
+        visited[startR][startC] = true;
+        
+        // directions: left, right, up, down
+        int[] dr = {0, 0, -1, 1};
+        int[] dc = {-1, 1, 0, 0};
+        
+        boolean found = false;
+        int shortestPath = -1;
+        
+        while (!queue.isEmpty()) {
+            int[] current = queue.poll();
+            int r = current[0];
+            int c = current[1];
+            int dist = current[2];
+            
+            // check if we reached the end
+            if (r == endR && c == endC) {
+                found = true;
+                shortestPath = dist;
+                break;
+            }
+            
+            // try all 4 directions
+            for (int d = 0; d < 4; d++) {
+                // we slide in this direction until we hit a wall or edge
+                int newR = r;
+                int newC = c;
+                
+                // keep moving in the direction until we can't anymore
+                while (true) {
+                    int nextR = newR + dr[d];
+                    int nextC = newC + dc[d];
+                    
+                    // check if next position is valid
+                    if (nextR < 0 || nextR >= n || nextC < 0 || nextC >= m) {
+                        break; // out of bounds
+                    }
+                    if (grid[nextR][nextC] == '#') {
+                        break; // hit a wall
+                    }
+                    
+                    // move to next position
+                    newR = nextR;
+                    newC = nextC;
+                }
+                
+                // now newR, newC is where we stopped sliding
+                // check if we havent visited this position before
+                if (!visited[newR][newC]) {
+                    visited[newR][newC] = true;
+                    queue.add(new int[]{newR, newC, dist + 1});
+                }
+            }
+        }
+        
+        // output the result
+        if (found) {
+            System.out.println("YES");
+            System.out.println(shortestPath);
+        } else {
+            System.out.println("NO");
+        }
+        
+        sc.close();
+    }
+}
